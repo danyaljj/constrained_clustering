@@ -26,22 +26,26 @@ for i = 1:k
                     'MarkerEdgeColor','k',...
                     'MarkerFaceColor','g',...
                     'MarkerSize',10)
-end    
+end 
 
 
-% cluster: bp-means: 
-lambda = 25; 
-[centroid, pointsInCluster, assignment, clusterSize]= bpmeans(X, lambda); 
-Xtmp = X(Y ==1, :);
-plot(Xtmp(:, 1), Xtmp(:, 2), 'xr')
+% cluster: dp-means: 
+lambda = 7; 
+% figure; 
+[centroid, pointsInCluster, assignment, clusterSize]= dpmeans(X, lambda); 
+figure; 
+% Xtmp = X(Y ==1, :);
+% plot(Xtmp(:, 1), Xtmp(:, 2), 'xr')
 hold on;
-Xtmp = X(Y ==-1, :);
-plot(Xtmp(:, 1), Xtmp(:, 2), 'xb')
+% Xtmp = X(Y ==-1, :);
+% plot(Xtmp(:, 1), Xtmp(:, 2), 'xb')
 for i = 1:clusterSize 
-    plot(X(pointsInCluster(i),1), X(pointsInCluster(i),2),'--rs','LineWidth',2,...
+    plot(centroid(i,1), centroid(i,2),'--rs','LineWidth',2,...
                     'MarkerEdgeColor','k',...
                     'MarkerFaceColor','g',...
                     'MarkerSize',10)
+    Xtmp = X(assignment ==i, :);
+    plot(Xtmp(:, 1), Xtmp(:, 2), 'x',  'color', rand(1,3))
 end
 
 
