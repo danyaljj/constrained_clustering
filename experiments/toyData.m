@@ -60,5 +60,11 @@ for t = 1:T
     end
 end
 
+% cluster : dpm-gibs sampling  
+dirich = DirichMix; % construct an object of the class
+dirich.InputData(X);
+dirich.DoIteration(1000); % 100 iterations
+dirich.PlotData
+
 
 % constrained k-means 
