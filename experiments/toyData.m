@@ -67,8 +67,8 @@ dirich.InputData(X);
 dirich.DoIteration(1000); % 100 iterations
 dirich.PlotData
 
-% constrained bp-means 
 
+%% constrained bp-means 
 E = zeros(size(Y, 1), size(Y, 1)); 
 Checked = zeros(size(Y, 1), size(Y, 1)); 
 randSize = 0.01 * size(Y, 1) * size(Y, 1); 
@@ -109,4 +109,44 @@ for i = 1:clusterSize
     plot(Xtmp(:, 1), Xtmp(:, 2), 'x',  'color', rand(1,3))
 end
 
+%% constrained bp-means 
+E = zeros(size(Y, 1), size(Y, 1)); 
+Checked = zeros(size(Y, 1), size(Y, 1)); 
+randSize = 0.01 * size(Y, 1) * size(Y, 1); 
+iterAll = 1;
+while(1)
+    i1 = randi(size(Y, 1)); 
+    i2 = randi(size(Y, 1)); 
+    if Checked(i1, i2) == 0   
+        Checked(i1, i2) = 1;
+        if Y(i1) == Y(i2)
+            E(i1, i2) = 1; 
+        else 
+            E(i1, i2) = -1; 
+        end
+        iterAll = iterAll + 1;
+    end 
+    if( iterAll > randSize) 
+        break;
+    end
+end
+
+lambda = 7; 
+xi = 1; 
+% figure; 
+[centroid, pointsInCluster, assignment, clusterSize] = constrained_dpmeans_slow(X, lambda, E, xi); 
+figure; 
+% Xtmp = X(Y ==1, :);
+% plot(Xtmp(:, 1), Xtmp(:, 2), 'xr')
+hold on;
+% Xtmp = X(Y ==-1, :);
+% plot(Xtmp(:, 1), Xtmp(:, 2), 'xb')
+for i = 1:clusterSize 
+    plot(centroid(i,1), centroid(i,2),'--rs','LineWidth',2,...
+                    'MarkerEdgeColor','k',...
+                    'MarkerFaceColor','g',...
+                    'MarkerSize',10)
+    Xtmp = X(assignment ==i, :);
+    plot(Xtmp(:, 1), Xtmp(:, 2), 'x',  'color', rand(1,3))
+end
 
