@@ -26,22 +26,26 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear
 clc
+
+DIM = 2;
+
 dirich = DirichMix; % construct an object of the class
+dirich.SetDimension(DIM);
 K0 = 5;  % number of clusters
 Ms = 30; % number of observations associated with each cluster
 xp = []; % observations
 % generate observations
 for k = 1:K0
     [mu,sig] = dirich.PriorSampleGaussGamma; % sample from prior
-    xp = [xp;[randn(Ms,2)*sig+repmat(mu,Ms,1),repmat(k,Ms,1)]];
+    xp = [xp;[randn(Ms,DIM)*sig+repmat(mu,Ms,1),repmat(k,Ms,1)]];
 end
 subplot(1,2,1)
 scatter(xp(:,1),xp(:,2),25,xp(:,3));
 title('true clusters');
 axis([-5,5,-5,5]);
 axis square;
-dirich.InputData(xp(:,1:2));
-dirich.DoIteration(100); % 100 iterations
+dirich.InputData(xp(:,1:DIM));
+dirich.DoIteration(500); % 100 iterations
 subplot(1,2,2)
 dirich.PlotData
 title('clustering results');

@@ -1,6 +1,6 @@
 clear all; close all; clc;
 
-% generate sampel continues data
+%% generate sample continues data
 size1 = 200; 
 mean1 = [2,-1];
 cov1 = [1,0.1; 0.1,1];
@@ -13,7 +13,7 @@ X = X(order,:);
 Y = Y(order,:); 
 
 
-% cluster : k-means 
+%% cluster : k-means 
 k = 2; 
 [centroid, pointsInCluster, assignment]= kmeans2(X, k); 
 Xtmp = X(Y ==1, :);
@@ -29,7 +29,7 @@ for i = 1:k
 end 
 
 
-% cluster: dp-means: 
+%% cluster: dp-means: 
 lambda = 7; 
 % figure; 
 [centroid, pointsInCluster, assignment, clusterSize]= dpmeans(X, lambda); 
@@ -49,7 +49,7 @@ for i = 1:clusterSize
 end
 
 
-% cluster : dpm 
+%% cluster : dpm 
 T = 50; % maximum number of clusters
 [gamma, phi, m, beta, s, p] = variational_dpm(X, 20, T, 1);
 [maxVal, clusters] = max(phi);
@@ -60,15 +60,15 @@ for t = 1:T
     end
 end
 
-% cluster : dpm-gibs sampling  : 
+%% cluster : dpm-gibs sampling  : 
 % Daniel: which algorithm is this? 
 dirich = DirichMix; % construct an object of the class
 dirich.InputData(X);
-dirich.DoIteration(1000); % 100 iterations
+dirich.DoIteration(100); % 100 iterations
 dirich.PlotData
 
+%% Constrained Gibbs sampling
 
-%% constrained bp-means 
 E = zeros(size(Y, 1), size(Y, 1)); 
 Checked = zeros(size(Y, 1), size(Y, 1)); 
 randSize = 0.01 * size(Y, 1) * size(Y, 1); 
@@ -80,8 +80,41 @@ while(1)
         Checked(i1, i2) = 1;
         if Y(i1) == Y(i2)
             E(i1, i2) = 1; 
+            E(i2, i1) = 1; 
         else 
             E(i1, i2) = -1; 
+            E(i2, i1) = -1; 
+        end
+        iterAll = iterAll + 1;
+    end 
+    if( iterAll > randSize) 
+        break;
+    end
+end
+
+dirich = DirichMixConstrained; % construct an object of the class
+dirich.SetDimension(size(X,2));
+dirich.SetE(E);
+dirich.InputData(X);
+dirich.DoIteration(100); % 100 iterations
+dirich.PlotData
+
+%% constrained bp-means : fast 
+E = zeros(size(Y, 1), size(Y, 1)); 
+Checked = zeros(size(Y, 1), size(Y, 1)); 
+randSize = 0.01 * size(Y, 1) * size(Y, 1); 
+iterAll = 1;
+while(1)
+    i1 = randi(size(Y, 1)); 
+    i2 = randi(size(Y, 1)); 
+    if Checked(i1, i2) == 0   
+        Checked(i1, i2) = 1;
+        if Y(i1) == Y(i2)
+            E(i1, i2) = 1; 
+            E(i2, i1) = 1; 
+        else 
+            E(i1, i2) = -1; 
+            E(i2, i1) = -1; 
         end
         iterAll = iterAll + 1;
     end 
@@ -109,7 +142,7 @@ for i = 1:clusterSize
     plot(Xtmp(:, 1), Xtmp(:, 2), 'x',  'color', rand(1,3))
 end
 
-%% constrained bp-means 
+%% constrained bp-means : slow 
 E = zeros(size(Y, 1), size(Y, 1)); 
 Checked = zeros(size(Y, 1), size(Y, 1)); 
 randSize = 0.01 * size(Y, 1) * size(Y, 1); 
@@ -121,8 +154,10 @@ while(1)
         Checked(i1, i2) = 1;
         if Y(i1) == Y(i2)
             E(i1, i2) = 1; 
+            E(i2, i1) = 1; 
         else 
             E(i1, i2) = -1; 
+            E(i2, i1) = -1; 
         end
         iterAll = iterAll + 1;
     end 

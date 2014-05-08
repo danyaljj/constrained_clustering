@@ -34,6 +34,9 @@ classdef DirichMix < handle
         cn; % K*1 
         mu; % K*2
         sig;% K*1
+        DIM;
+        beta;
+        mu0;
 		
 		itern = 0; % the current number of iterations
 
@@ -41,16 +44,18 @@ classdef DirichMix < handle
 		% p(mu,sig|a,b,beta,mu0)
 		a     = 5;           % Gauss-Gamma param
 		b     = .9;          % Gauss-Gamma param
-        beta  = .05*eye(2);   % Gauss-Gamma param  % only affect the variance of mu
-        mu0   = [0,0];       % Gauss-Gamma param  % only affect the mean of mu
-		
         alpha = .1;    % determine the probability of create a new cluster
 	end
     methods
         function [mu,sig] = PriorSampleGaussGamma(obj)
 			sig  = 1/sqrt(gamrnd(obj.a,1/obj.b));  % the definitions of a,b in matlab are different from here
             mu = DirichMix.MultivarStudentRnd(obj.a,obj.b,obj.beta,obj.mu0);
-        end	       
+        end
+        function SetDimension(obj, DIM)
+            obj.beta  = .05*eye(DIM);   % Gauss-Gamma param  % only affect the variance of mu
+            obj.mu0   = zeros(1,DIM);       % Gauss-Gamma param  % only affect the mean of mu 
+            obj.DIM = DIM;
+        end
         function InputData(obj,data0)
             obj.data = data0;
             obj.N    = size(data0,1);
@@ -94,7 +99,7 @@ classdef DirichMix < handle
                     end
                     
                     % computer partition function
-                    mu_    = [0,0];           % theoretically, could be any value
+                    mu_    = zeros(1,obj.DIM);           % theoretically, could be any value
                     sig_   = (obj.a-1)/obj.b; % theoretically, could be any value
                     
                     % for the only observation obj.data(n,:)
@@ -102,8 +107,8 @@ classdef DirichMix < handle
                     
                     % posterior hyperparameter
                     a0_    = obj.a+1;
-                    mu0_   = ((obj.beta+eye(2))\(obj.beta*obj.mu0'+eye(2)*y_'))';
-                    beta0_ = (obj.beta+eye(2))/sig_^2;
+                    mu0_   = ((obj.beta+eye(obj.DIM))\(obj.beta*obj.mu0'+eye(obj.DIM)*y_'))';
+                    beta0_ = (obj.beta+eye(obj.DIM))/sig_^2;
                     b0_    = obj.b+.5*(y_-obj.mu0)*obj.beta*(y_-obj.mu0)';
                     
                     % partition function = prior*likelihood/posterior
@@ -140,16 +145,16 @@ classdef DirichMix < handle
                     
                     % posterior hyperparameter
                     a_    = obj.a+yN*2/2;
-                    mu_   = ((obj.beta+yN*eye(2))\(obj.beta*obj.mu0'+yN*eye(2)*mean(y0,1)'))';
+                    mu_   = ((obj.beta+yN*eye(obj.DIM))\(obj.beta*obj.mu0'+yN*eye(obj.DIM)*mean(y0,1)'))';
                     b_    = obj.b+.5*trace(...
-                        (y0-repmat(mean(y0,1),yN,1))*eye(2)*(y0-repmat(mean(y0,1),yN,1))'...
+                        (y0-repmat(mean(y0,1),yN,1))*eye(obj.DIM)*(y0-repmat(mean(y0,1),yN,1))'...
                         ) + .5*(mean(y0,1)-obj.mu0)*obj.beta*(mean(y0,1)-obj.mu0)';
                     
                     % sample sig
                     obj.sig(k)  = 1/sqrt(gamrnd(a_,1/b_)+0.001); % sample from gamma
 					
 					% another posterior hyperparameter
-					beta_ = obj.sig(k)^2\(obj.beta+yN*eye(2));
+					beta_ = obj.sig(k)^2\(obj.beta+yN*eye(obj.DIM));
 					
 					% sample mu
                     obj.mu(k,:)   = DirichMix.MultivarStudentRnd(a_,b_,beta_,mu_); % sample from t
@@ -184,11 +189,11 @@ classdef DirichMix < handle
             n = 2*a;
 			% y ~ N(0,inv(a/b*beta));  
 			sigma = 1/sqrt(a/b*beta(1)); % since beta is diagonal
-			y   = randn(1,2)*sigma;
+			y   = randn(1,size(mu,2))*sigma;
 			% u ~ chi-square(n)        
 			u   = chi2rnd(2*a);
 			% see multivariate student distribution on wiki
-			mu   = y*sqrt(n/u) + mu;
+            mu   = y*sqrt(n/u) + mu;
         end
         function x = NormalGammaPDF(mu,sig,a0,b0,beta0,mu0)
             % a0,b0,beta0,mu0 hyperparameters
