@@ -1,5 +1,9 @@
-function[centroid, pointsInCluster, assignment, clustersSize]= bpmeans(data, lambda)
+function[centroid, pointsInCluster, assignment, clustersSize]= bpmeans(data, lambda, distancef)
 % function bpmeans()
+
+if(nargin < 3)
+    distancef ='Gaussian';
+end
 
 % data
 % lambda = 20;
@@ -55,7 +59,7 @@ pos_diff = 1.;
 iterAll = 1;
 while pos_diff > 0.0
     iterAll = iterAll + 1
-    if iterAll > 20000
+    if iterAll > 100
         disp('terminated by reaching the maximum number of iterations ')
         break;
     end
@@ -70,8 +74,18 @@ while pos_diff > 0.0
         
         for c = 1 : nbCluster;
             %             c
-            diff2c = ( data( d, :) - centroid( c,:) );
-            diff2c = sqrt( diff2c * diff2c' );
+            
+            diff2c = 0;
+            if(strcmp(distancef,'Gaussian'))
+                diff2c = gaussianDifference(data(d,:), centroid(c,:));
+            else
+                diff2c = multDifference(data(d,:), centroid(c,:));
+            end
+            
+            %diff2c = ( data( d, :) - centroid( c,:) );
+            %diff2c = sqrt( diff2c * diff2c' );
+            
+            
             if( min_diff >= diff2c)
                 curAssignment = c;
                 min_diff = diff2c;
@@ -115,23 +129,28 @@ while pos_diff > 0.0
         centroid( assignment(d),:) = data(d,:) + centroid( assignment(d),:)  ;
         pointsInCluster( assignment(d), 1 ) = pointsInCluster( assignment(d), 1 ) + 1;
     end
-    
-    for c = 1: nbCluster
+
+    add = 0; 
+    e = nbCluster; 
+    for c = 1: e
         if( pointsInCluster(c, 1) ~= 0)
             try 
-                centroid( c , : ) = centroid( c, : ) / pointsInCluster(c, 1);
+                centroid( c - add , : ) = centroid( c - add, : ) / pointsInCluster(c, 1);
             catch 
                 disp('****************************************ERROR ***************************************')
                 size(centroid)
                 nbCluster
+                c
             end 
         else
             % set cluster randomly to new position
             %             centroid( c , : ) = (rand( 1, data_dim) .* data_diff) + data_min;
-            centroid( c , : ) = [];
+            centroid( c - add , : ) = [];
             nbCluster = nbCluster - 1; 
-            disp('I need to remove this bitch! ')
-            
+            disp('Cluster removed!!!!!!!!!!!!!!!')
+            add = add + 1;
+            ind = find(assignment > c ); 
+            assignment(ind) = assignment(ind) - 1; 
         end
     end
     
@@ -147,7 +166,7 @@ while pos_diff > 0.0
     %     pos_diff
     clustersSize = nbCluster;
     if(pos_diff <= 0 )
-        disp('terminated by reaching at the while threahold ')
+        disp('terminated by reaching at the while threshold ')
     end 
     
 end

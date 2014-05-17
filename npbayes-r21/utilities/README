@@ -1,0 +1,82 @@
+Sampling Utilities
+==================
+randmult(pp,normdim)
+        Generates multinomial samples with mixing proportions given in pp, 
+	where normdim gives the dimension over which pp sums to 1 and defines 
+	a multinomial distribution.  pp need not be normalized.  If normdim
+	is not given it is the first nonzero dimension.
+
+randdir(aa,normdim)
+        Generates Dirichlet samples, with weights given in aa.  The output
+	sums to 1 along normdim, and each such sum corresponds to one 
+	Dirichlet sample.
+
+randbeta(aa,bb)
+	Generates beta samples, with weights given by aa and bb.
+
+randgamma(aa)
+	Generates gamma samples, with shape given in aa, and scale 1.
+
+
+DP Sampling Utilities
+=====================
+randconparam(alpha,numdata,numclass,aa,bb,numiter)
+	Generates a sample from a concentration parameter with gamma(aa,bb)
+	prior, and number of classes and data items given in numdata, numclass
+	(has to be row vectors).  Uses auxiliary variable method, for numiter
+	iterations.
+
+randnumtable(weights,maxtable)
+	For each entry in weights and maxtables, generates the number of 
+	tables given concentration parameter (weights) and number of data 
+	items (maxtable).
+
+randstick(alpha,numclass)
+	Generates stick-breaking weights with concentration parameter for
+	numclass "sticks".
+
+[cc numclass] = randcrp(alpha,numdata)
+	Generates a partition of numdata items with concentration parameter
+	alpha.  cc is sequence of indicator variables denoting which class
+	each data item is in, and numclass is the generated number of classes.
+
+
+Other DP Utilities
+==================
+[ss lmss] = stirling(nn)
+	Gives Stirling numbers s(nn,*) in ss.  ss(i) = s(nn,i-1).  ss is 
+	normalized so that maximum value is 1, and the log of normalization
+	is returned in lmss.
+
+enumclass(alpha,numdata)
+	The expected number of tables in a CRP with concentration parameter
+	alpha and numdata items.
+
+meanlik(lik)
+	Computes estimated likelihood from individual samples.  Basically does
+	a harmonic mean of lik in 3rd dimension, followed by normal mean in 2nd.
+
+logmeanexp(ww,normdim)
+	computes log(mean(exp(ww),normdim)).
+
+Graphical Utilities
+===================
+imlayout(w,shape,s,...)
+	Shows a montage of images, with each image of size given by first two
+	entries in shape, and the layout of images (#rows, #columns) given by
+	third and fourth entry in shape.  s is a scale such that s(1) is black,
+	s(2) is white.  Images given in w, which doesn't have to be in the
+	right shape (inlayout will use reshape to shape w correctly).  Lines
+	at boundary separating images, and arguments after s are passed
+	to plot to draw these lines.
+
+plotellipse(xx,var,style)
+        Plots a 2D Gaussian at 1 STD, with mean xx, covariance var, and given
+	line style (passed to plot).
+
+mysubplot(i,j,k,m)
+	Like subplot, except you get control over how much border you put
+	around each subplot (minimize space wastage).  Also means top .05
+	of figure blank so title will fit it and not get chopped at top.
+
+

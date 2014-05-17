@@ -1,0 +1,116 @@
+Clustering evaluation package:
+===============================
+
+1. General Information:
+------------------------
+
+1.1 This package contains matlab implementation of information theoretic (IT) and mapping-based clustering evaluation measures. 
+
+1.2 The measures calculated in this package are: 
+
+Three IT-based measures: v,vi,nvi. 
+
+  1.2.1 The V measure is described in the paper:
+
+     V-Measure: A Conditional Entropy-Based External Cluster Evaluation Measure, Andrew Rosenberg and Julia Hirschberg, EMNLP 2007 
+
+  1.2.2 The VI measure is described in the paper:
+
+     Comparing clusterings---an information based distance, Journal of Multivariate Analysis, 98(5): 873-895 
+
+  1.2.3 The NVI measure is described in the paper:
+
+     The NVI Clustering Evaluation Measure.  Roi Reichart and Ari Rappoport , CoNLL 2009
+
+  1.2.4 We denote the gold clusters with 'c' and the induced clusters with 'k'. 
+
+  1.2.5 The code also provides the H(K|C) and H(C|K) values. The first is the conditional entropy of the induced clustering when the gold clustering is known. The second is the conditional entropy of the gold clustering when the induced clustering is known. These quantities along with H(C) and H(K) are the building blocks of the IT-based measures. In these measures a clustering (gold or induced) is treated as a uniformly distributed random variable. The probability of a single cluster is the number of items included in this cluster divided by the total number of items. 
+
+  1.2.6 The mapping-based measures are well known in the literature. For both the greedy many-to-one and greedy one-to-one measures, first the induced clusters are mapped to the gold clusters and then the fraction of items that are clustered correctly is computed.
+For the greedy one-to-one measure, the induced clusters are mapped to the gold clusters using the kuhn-munkres algorithm for maximum matching in a complete bipartite graph. 
+
+That is, first a bipartite graph is created. In this graph each induced and gold cluster is represented by a vertex. Edges exists between every pair of a gold cluster vertex and an induced cluster vertex (and only between such pairs). The weight on an edge is the number of items that are clustered by the gold cluster in the gold clustering and by the corresponding induced cluster in the induced clustering. The algorithm then computes a one-to-one assignment of induced to gold clusters that maximizes the weight on the edges. To the bast of our knowledge, in the context of unsupervised POS tagging and parsing this method was first used for evaluation with greedy one-to-one mapping in the paper:
+
+ 
+Unsupervised Induction of Labeled Parse Trees by Clustering with Syntactic Features."  Roi Reichart and Ari Rappoport , COLING 2008
+
+Former works applied a simple greedy heuristic for computing this measure.
+
+
+   1.2.7 Simple edition of the mapping-based measures code may be used to turn them to compute the mapping from the gold to the induced clusterings.
+
+
+   
+2. Content:
+-----------
+
+2.1 The main function that calculates all measures is: 
+
+function [v,vi,nvi,greedy,greedy_11,hc,hk,h_ck,h_kc] =  calculate_measures (matrix)
+
+%input: matrix - a co-occurrence matrix between induced and gold clusters
+%lines are for induced clusters, columns are for gold clusters
+  
+% output: v,vi,nvi,greedy many-to-one (in the greedy variable) and greedy
+% one-to-one (in the greedy_11 variable).
+% hc and hk - unconditional entropies of gold (hc) and induced (hk) clusterings
+% h_ck and h_kc: conditional entropies: h_ck - gold given induced. h_kc:
+% induced given gold 
+
+The following functions are called from calculate_measures.
+
+2.2    [v,hc,hk,h_ck,h_kc] = calculate_v_measure (matrix'); 
+
+2.3    vi = calculate_vi_measure (matrix');
+  
+2.4    nvi = calculate_nvi_measure (matrix');
+    
+2.5    greedy = calculate_greedy (matrix');
+
+2.6    greedy_11  = calculate_hungarian_munkers (matrix);
+ 
+
+
+
+
+
+3. Copying and Modifying
+---------------------
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+A copy of the GNU General Public License can be found in the file
+'License.txt' which is part of this distribution.
+
+4. Citation:
+---------
+
+If you use this code please do the following:
+
+1. "The NVI Clustering Evaluation Measure."  Roi Reichart and Ari Rappoport , CoNLL 2009
+
+2. Mention that you used this package and the web page from which it was downloaded (Currently: www.cs.huji.ac.il/~roiri).
+
+The kuhn-munkres algorithm for 1-1 mapping was downloaded from:
+
+http://www.mathworks.com/matlabcentral/fileexchange/authors/26973 
+
+
+and was written by Markus Buehren.
+
+5. Contact:
+----------
+
+If you have any questions, remarks, bug reports, bug fixes or extensions,
+I will be happy to hear from you.
+
+Roi Reichart
+roiri@cs.huji.ac.il

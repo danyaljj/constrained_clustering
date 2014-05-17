@@ -1,0 +1,7 @@
+ITER = 10;
+
+results = zeros(ITER, 6);
+
+for i=1:1:ITER
+    results(i,:) = GetF1OnToy();
+end

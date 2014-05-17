@@ -1,0 +1,280 @@
+Hierarchical Dirichlet Processes
+================================
+
+This package implements hierarchical Dirichlet process (HDP) mixture
+models.  It handles the general case where the Dirichlet processes
+(DPs)  can be arranged according to any tree structure, with
+observations associated with any DP.  We assume the base distribution
+is conjugate to the observation distributions.  We have currently
+only implemented multinomial observations with Dirichlet base
+distributions, though this should be easily generalized to any
+distribution over observations along with its conjugate prior.
+
+A HDP mixture consists of 4 parts: a list of mixture components, a
+list of concentration parameters, a list of DPs, and lists of indices
+describing the parents and concentration parameters corresponding
+to each DP.
+
+
+Structures and Lexicon
+======================
+hdp
+	The identifier hdp will always mean a HDP mixture.
+	This is represented as a structure in both matlab and C.
+jj
+        This is used as an index for DPs.
+ii
+        This is used as an index for observations.
+cp
+        An index for a concentration parameter.
+cc
+        This indices the mixture component that an observation belongs to.
+ss
+        This means an observation.
+qq
+        This is used to mean the sum sufficient statistics of observations
+        in a component.
+hh
+        The hyperparameters for the prior over component parameters.
+data
+        I use the words "data items" and "observations" interchangeably.
+class
+        I use the words "component" and "class" interchangeably to mean
+        "mixture component".
+
+hdp.numdp
+        The number of DPs in the HDP mixture.
+hdp.dp{jj}
+        The jj'th DP in the HDP mixture.
+hdp.dp{jj}.numdata
+        The number of observations corresponding to the jj'th DP.
+hdp.dp{jj}.datass(:,ii)
+        The ii'th observation in the jj'th DP.  This is represented as
+        a structure of type SS in C.  In matlab, manipulations of ss
+        variables should always be done using the relevant methods to
+        ensure portability.  I did not use matlab classes for this as
+        the matlab compiler does not handle classes.
+hdp.dp{jj}.datacc(1,ii)
+        The component to which the ii'th observation belongs to.
+hdp.dp{jj}.classnd(1,cc)
+        The number of observations in class cc in the jj'th DP.  This 
+        includes both real observations as well as "virtual" ones (see 
+        notes below).
+hdp.dp{jj}.classnt(1,cc)
+        The number of tables in the Chinese restaurant representation
+        for the jj'th DP.
+hdp.dp{jj}.beta(1,cc)
+        The beta auxiliary variable corresponding to the cc'th class in
+        the jj'th DP.
+
+hdp.base.numclass
+        The number of components used by the HDP.
+hdp.base.hh
+        The hyperparameters of the prior over parameters of components.
+hdp.base.classqq(:,cc)
+        The sufficient statistics of the cc'th component.  numclass+1
+        components are actually represented.  The last component is the
+        "empty" component (see notes below).
+hdp.func
+        Matlab functions used to manipulate hh, qq and ss, as well as 
+        the mex functions to call for sampling from the HDP.
+
+hdp.numconparam
+        The number of concentration parameters.
+hdp.conparam{cp}
+        The cp'th concentration parameter.
+hdp.conparam{cp}.alpha
+        The value of the cp'th concentration parameter.
+hdp.conparam{cp}.alphaa, alphab
+        The hyperparameters of the cp'th concentration parameter.  The
+        prior is a gamma with shape alphaa, and inverse scale alphab.
+hdp.conparam{cp}.numdp
+        The number of DPs using the cp'th concentration parameter.
+hdp.conparam{cp}.totalnd(1,jj)
+        The total number of observations in the jj'th DP that uses the
+        cp'th concentration parameter (including both real and virtual ones).
+hdp.conparam{cp}.totalnt(1,jj)
+        The total number of tables in the jj'th DP that uses the cp'th
+        concentration parameter.
+
+hdp.ppindex(1,jj)
+        The index of the parent DP of the jj'th DP.  This is 0 if the 
+        DP has the base distribution as its parent (see notes below).
+hdp.cpindex(1,jj)
+        The index of the concentration parameter used by the jj'th DP.
+hdp.ttindex(1,jj)
+        An index used to access the totalnd/totalnt entries in the
+        hdp.conparam structure corresponding to the jj'th DP.
+hdp.dpstate(1,jj)
+        The state of the jj'th DP.  This can be: active, frozen or heldout
+        (see notes below).
+
+Notes
+=====
+matlab and C indexing:
+        In matlab, the indexing starts from 1, in c it starts from 0.  I
+        use this convention, translating from one to the other when I 
+        import/export from matlab to c structs.
+parent distribution and ordering of DPs:
+        A DP can either have the base distribution or another DP as its
+        parent distribution.  The list of DPs in hdp.dp{:} has to be 
+        topologically ordered according to the tree of DPs.  That is the
+        index of the parent of the jj'th DP has to be lower than jj.
+empty class:
+        In order to facilitate the programming we always keep around an
+        additional "empty" component.  This component has no observations
+        associated with it, but has entries corresponding to it in classnd, 
+        classnt, and beta.  Once an observation is associated with it
+        during the course of sampling, this class becomes non-empty and we
+        create a new empty class.
+virtual observations:
+        If a DP has child DPs, the tables in these child DPs correspond to
+        "observations" in the DP.  We keep track of this in classnd.  Note
+        that the number of virtual observations can change as we sample the
+        number of tables associated with the child DPs.
+DP states:
+	A DP has be in one of 3 states.  This can be ACTIVE (2), FROZEN 
+        (1) or HELDOUT (0).  An active DP means a DP which we will do 
+        sampling for inference.  A frozen DP is a DP which we will not 
+        perform sampling, but the statistics for this DP is used in the 
+        sampling of other DPs.  This is used in doing inference for 
+        conditional distributions.  A heldout DP is a DP which is not 
+        used whatsoever by the HDP mixture.  Having these 3 states for 
+        DPs is useful so that we may perform inference given observations 
+        of different DPs, and we may estimate the log predictive 
+        probability of different DPs given the observations corresponding 
+        to other DPs.
+        When a DP is active, the following the represented: alpha, beta,
+        datacc, classnd and classnt.  When a DP is frozen all the above
+        except beta is represented.  When a DP is heldout, they are not
+        represented (in matlab the fields are simply empty matrices); in
+        addition the corresponding totalnd and totalnt are 0.
+HDP states and data:
+        The HDP structure can be roughly split into 3 parts: the basic
+        structure of the HDP (func, numdp, numconparam, base.hh, dp,
+        conparam.* except alpha, ppindex, cpindex, ttindex), the 
+        observations (dp.numdata, dp.datass), and the internal state 
+        (base.numclass, base.classqq, dpstate, dp.class*, dp.beta, 
+        dp.datacc, conparam.alpha, conparam.total*).
+
+FUNCTIONS
+=========
+
+Functions to manipulate structure of HDP mixture
+------------------------------------------------
+hdp = hdp_init(func,ppindex,cpindex,hh,alphaa,alphab)
+	Constructs a HDP mixture model with no observations.  func
+	gives functions which determine the type of base distribution
+	and likelihood distribution to use, as well as the sampling
+	scheme, hh gives the parameters for the base distribution
+	HH, alphaa and alphab give the parameters for the gamma
+	prior over concentration parameters, cpindex describes which
+	DP uses which concentration parameter (ith entry gives index
+	of concentration parameter to use), and ppindex gives the
+	parent DP for each DP.
+[hdp dpindex] = hdp_adddp(hdp,numdp,pp,cp)
+        Adds new DPs into the hdp, retuns the new HDP and the indices of the 
+        new DPs.  The number of DPs is numdp, and they all share the same 
+        parent given by index pp and concentration parameter given by index cp.
+hdp = hdp_deldp(hdp,dpindex)
+        Deletes DPs given by dpindex.  If a DP is to be deleted, all its
+        descendents must also be deleted, and it must be held out first.
+
+Functions to manipulate observations and internal states of HDP mixture
+-----------------------------------------------------------------------
+hdp = hdp_setdata(hdp,dpindex,datass)
+        Sets the obervations for the DPs given by dpindex to be datass. 
+        datass is a cell array, with one entry for each DP.  The DPs in 
+        dpindex must be heldout.
+datass = hdp_getdata(hdp,dpindex)
+        Returns the datass under the DPs given by dpindex.
+hdp = hdp_setstate(hdp,hdppost)
+        Sets the current state of the HDP, including the states of the DPs,
+        and the current values of the hidden variables.
+hdppost = hdp_getstate(hdp)
+        Returns the current state of the HDP.
+hdp = hdp_strip(hdp)
+        Removes both the current state and the observations from the HDP. 
+        Useful to just save the structure of the HDP.
+       
+Functions to manipulate the states of DPs in the HDP mixture
+------------------------------------------------------------
+hdp = dp_activate(hdp,dpindex,initcc)
+        Activates DPs in dpindex.  initcc can either one of 3 possibilities:
+        if initcc is '1perdp', sets the component membership for observations 
+        under each DP to be a new class, if initcc is a cell array, sets the
+        component memberships to be the corresponding initcc entry, and if
+        initcc is a number, and this is greater than the number of components
+        currently in the HDP, we extend the number of components to initcc,
+        and in either case sets the component memberships to be random.
+hdp = dp_freeze(hdp,dpindex)
+        Freezes DPs in dpindex.  These DPs has to be already activated.
+hdp = dp_holdout(hdp,dpindex)
+        Holds out DPs in dpindex.
+
+Functions to manipulate representations of components in the HDP mixture
+------------------------------------------------------------------------
+hdp = qq_addclass(hdp,numnewclass)
+        Adds representation for numnewclass new components.
+hdp = qq_additems(hdp,cc,ss)
+        Adds observations ss to the corresponding components cc.
+hdp = qq_delitems(hdp,cc,ss)
+        Delete observations ss from the corresponding components cc.
+hdp = qq_numitems(hdp,cc)
+        Returns the number of observations in the components cc.
+
+Functions to perform sampling
+-----------------------------
+hdp = hdp_randbeta(hdp)
+        Samples the beta variables.
+hdp = hdp_randconparam(hdp)
+        Samples the concentration parameters.
+
+Functions to iterate Markov chain, get samples from chain, predict
+------------------------------------------------------------------
+[hdp lik] = hdp_iterate(hdp,numiter,doconparam,dolik,dodebug)
+	Runs beta auxiliary variable sample for the HDP for numiter
+	iterations, performing doconparam iterations of updates to
+	the concentration parameter per iteration.  dolik=1 to also
+	compute the likelihood of data given hidden variables for
+	every iteration, at debug level dodebug.
+[sample hdp lik] = hdp_posterior(hdp,numburnin,numsample,numspace,
+                doconparam,dolik,dodebug,fid)
+        Obtains approximate samples from the posterior, by sampling for
+        numburnin iterations, then collecting numsample samples with numspace
+        iterations in between.  doconparam, dolik, dodebug as in hdp_iterate,
+        fid is file id for progress output (1 for standard out).
+lik = hdp_predict(hdp,postsample,trainindex,testindex,numburnin,numsample,
+                doconparam,dodebug,fid)
+        Estimates log predictive probability for data items under held out DPs.
+        The held out DPs are given by testindex, while trainindex gives DPs
+        whos observations we are conditioning on.  postsample are posterior
+        samples returned by hdp_posterior.  We estimate using Kass and Raftery
+        1995's simple method of importance sampling using Gibbs sampling,
+        with numburnin burn in iterations, followed by harmonic average of
+        likelihood for next numsample iterations.  doconparam, dodebug, fid
+        are as in hdp_posterior.
+
+Other useful functions
+----------------------
+check_hdp(hdp)
+        Makes sure hdp is a valid representation of a HDP mixture.
+hdp = hdp2Multinomial_init(hh,alphaa,alphab,initcc,trainss,testss);
+        Constructs a 2 layer HDP, with observations given by trainss and
+        testss (these are cell arrays, one for each DP), initialize the
+        component memberships using initcc, prior probabilities to hh,
+        and concentration parameters to have priors given by Gamma
+        distributions with parameters alphaa and alphab.
+[hdp,sample,lik,predlik] = hdp2Multinomial_run(hh,alphaa,alphab,
+                initcc,trainss,testss,
+                trainnumburnin,trainnumsample,trainnumspace,
+                testnumburnin,testnumsample,trainconparam,testconparam,fid);
+        Constructs a 2 layer HDP (as in hdp2Multinomial_init), then trains 
+        the HDP on the observations in trainss, and estimates predictive 
+        probability on observations in testss.  Returns everything.  
+        trainnumburnin is amount of burn-in for training, trainnumsample 
+        is the number of posterior samples to take, trainnumspace is number 
+        of iterations between samples, and trainconparam is number of 
+        samples to concentration parameter per training iteration.  Same as 
+        for test*.  fid is the file id for intermediate output, 1 for 
+        standard output.
