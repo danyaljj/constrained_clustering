@@ -92,6 +92,8 @@ while pos_diff > 0.0
             end
         end
         
+        %min_diff, lambda
+        
         if( min_diff < lambda )
             % keep it ;
         else
@@ -165,7 +167,7 @@ while pos_diff > 0.0
     end 
     %     pos_diff
     clustersSize = nbCluster;
-    if(pos_diff <= 0 )
+    if(pos_diff <= 0)
         disp('terminated by reaching at the while threshold ')
     end 
     
