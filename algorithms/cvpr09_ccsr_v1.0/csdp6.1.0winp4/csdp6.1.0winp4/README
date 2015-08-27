@@ -1,0 +1,27 @@
+Copyright 1997-2010, Brian Borchers.  This copy of CSDP is made
+available under the Common Public License.  See LICENSE for the
+details of the CPL.
+
+CSDP is a software package for solving semidefinite programming
+problems. The algorithm is a predictor-corrector version of the
+primal-dual barrier method of Helmberg, Rendl, Vanderbei, and
+Wolkowicz.
+
+This file includes binary code for SDP for Windows.  
+
+  doc                  documentation.
+
+  matlab               MATLAB/Octave routines for interfacing to CSDP.  
+
+  bin                  The binary code.  
+
+Contact/Support: 
+
+If you are having trouble running the code, see the doc directory
+first. The project's website can be found at
+
+  https://projects.coin-or.org/Csdp/
+
+The project's maintainer can be reached by email at borchers@nmt.edu. Please
+email bug reports and feature requests.
+

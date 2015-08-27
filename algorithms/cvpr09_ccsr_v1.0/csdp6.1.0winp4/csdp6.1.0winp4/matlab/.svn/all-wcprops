@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/Csdp/!svn/ver/43/releases/6.1.0/matlab
+END
+control1.correct
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/Csdp/!svn/ver/43/releases/6.1.0/matlab/control1.correct
+END
+control1.mat
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/Csdp/!svn/ver/43/releases/6.1.0/matlab/control1.mat
+END
+convertf.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/Csdp/!svn/ver/43/releases/6.1.0/matlab/convertf.m
+END
+writesol.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/Csdp/!svn/ver/43/releases/6.1.0/matlab/writesol.m
+END
+csdp.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/Csdp/!svn/ver/43/releases/6.1.0/matlab/csdp.m
+END
+readsol.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/Csdp/!svn/ver/43/releases/6.1.0/matlab/readsol.m
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/Csdp/!svn/ver/43/releases/6.1.0/matlab/README
+END
+writesdpa.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/Csdp/!svn/ver/43/releases/6.1.0/matlab/writesdpa.m
+END
+readsdpa.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/Csdp/!svn/ver/43/releases/6.1.0/matlab/readsdpa.m
+END
