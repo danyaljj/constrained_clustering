@@ -16,5 +16,5 @@ Note that not all of these algorithms are used in the evaluation script (either 
 - `distance`: some of the distance measures we have used across multiple algorithms. 
 - `metrics`: contains the evaluation metrics we have used.    
 
-## Questions? 
-Ask Daniel: [http://web.engr.illinois.edu/~khashab2/](http://web.engr.illinois.edu/~khashab2/)
+## Questions / Comments / Suggestions  
+Email Daniel: [http://web.engr.illinois.edu/~khashab2/](http://web.engr.illinois.edu/~khashab2/)
