@@ -1,3 +1,0 @@
-initpath
-makeutils
-makehdpmix

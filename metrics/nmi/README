@@ -1,0 +1,47 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% TEXTCLUST toolbox %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                             %
+% A Model-based Document Clustering Toolbox                                   %
+%                                                                             %
+% Author: Shi Zhong, ECE Dept., The University of Texas at Austin             %
+%                                                                             %
+% Version 1.0, June 2003                                                      %
+%                                                                             %
+%                                                                             %
+% TEXTCLUST is a free software and comes with ABSOLUTELY NO WARRANTY.         %
+% You are free to use and redistribute it except for commercial purpose.      %
+%                                                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+INSTALLATION
+	Download textclust.tar.gz and uncompress it into the desired directory.
+	It will create a new directory textclust/ under your desired directory.
+	Add the path to Matlab using: 'addpath desireddir/textclust -end' in
+	Matlab command line.
+
+USAGE
+	Use 'help textclust' in Matlab to view available algorithms and use
+	'help kberns', 'help kmns', etc. to view details of individual algorithms.
+	Please view the references for further detials.
+
+REFERENCES
+	A. Banerjee and J. Ghosh, "Frequency sensitive competitive learning
+	for clustering on high-dimensional hyperspheres," Proc. IEEE Int. Joint
+	Conf. Neural Networks, 2002
+
+	A. Banerjee, I. Dhillon, J. Ghosh, and S. Sra, "Clustering on
+	hyperspheres using expectation maximization," Tech. Report TR-03-07,
+	Department of Computer Science, The University of Texas at Austin, 2003.
+	
+	G. Karypis, "CLUTO - a clustering toolkit," Department of Computer
+	Science, University of Minnesota, Twins Cities.
+
+	S. Zhong and J. Ghosh, "Scalable, balanced model-based clustering,"
+	Proc. SIAM Int. Conf. Data Mining, May 2003
+
+	S. Zhong and J. Ghosh, "A comparative study of generative models for
+	document clustering," SDM Workshop on Clustering High Dimensional
+	Data and Its Applications, May 2003
+
+	S. Zhong, "Probabilistic model-based clustering of complex data,"
+	Ph.D. Thesis, The University of Texas at Austin, August, 2003
+
