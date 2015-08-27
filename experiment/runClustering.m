@@ -1,27 +1,29 @@
 function [] = runClustering(X, Y, k, experimentName, rate, p)
+% X 
+% Y 
+% k 
+% experimentName 
+% rate
+% p 
 
 iter = 1;
 name1 = [experimentName '_iter=' num2str(iter)];
 name1 = strrep(name1, '.', '_');
 if ~exist([name1 '.mat'])
-    %iter = iter + 1;
     disp(['skipping = '  experimentName])
     dataAll = {};
     assignmentAll = {};
     titles = {};
     calculationTime = {};
-    %return;
         
     % make E matrix
     E = zeros(size(Y, 1), size(Y, 1));
     Checked = zeros(size(Y, 1), size(Y, 1));
-    %rate = 0.05;
     randSize = rate * size(Y, 1) * size(Y, 1);
     iterAll = 1;
     ML = [];
     CL = [];
     C_m = [];
-    %p = 1;
     while(1)
         i1 = randi(size(Y, 1));
         i2 = randi(size(Y, 1));
@@ -76,8 +78,7 @@ if ~exist([name1 '.mat'])
     [dist, ind] = sort( sqrt(sum((repmat(T,size(X,1),1)-X).^2,2)), 'descend' );
     lambda = dist(k);
     E2 = C_m;
-    E2(:,3) = (E2(:,3) + 1)/2;
-    
+    E2(:,3) = (E2(:,3) + 1)/2;    
 else
     disp('loading the file .... ')
     load([name1 '.mat'])
@@ -332,15 +333,14 @@ end
 % end
 
 
-%%
-% save everything
-% save('tmp10')
+%% save everything
 try 
     result = calculateResults(dataAll, assignmentAll, titles, Y);
 catch 
 end
 
 save(name1);
+
 % title = ['Experiment= ' experimentName ' | sample size= ' num2str(size(X,1)) ' | sampling rate= ' num2str(rate) ' | constraint confidence= ' num2str(p) ];
 % h = plotExperiments(dataAll, assignmentAll, titles, 4, 5, title);
 %
