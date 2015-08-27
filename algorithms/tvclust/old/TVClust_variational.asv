@@ -1,0 +1,7 @@
+function [assignment] = TVClust_variational(C, SM, X, p, q)
+
+system('system(''Rscript main_VB_TVClust_sim_data2.r '')'); 
+fileID = fopen('result2.txt','r');
+assignment = fscanf(fileID,'%d'); 
+
+end
