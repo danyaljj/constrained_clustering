@@ -8,7 +8,7 @@ Also there is a list of constrained clustering algorithms with available codes [
 
 ## How to run: 
 To see output on toy data, go to the directory `experiment`, and run the script `experiment_toy.m`. You should be able to see the following output, followed by some other outputs: 
-![alt text](https://github.com/danyaljj/constrained_clustering/experiment/Gaussian-Mixtures_iter=1.tif)
+![alt text](https://github.com/danyaljj/constrained_clustering/blob/master/experiment/Gaussian-Mixtures_iter=1.tif)
 
 You can run the script `experiment_uci.m` to see the output of the algorithms on the UCI dataset as well.  
 
