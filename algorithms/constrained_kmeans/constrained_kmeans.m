@@ -1,6 +1,12 @@
-function[centroid, pointsInCluster, assignment, clustersSize]= constrained_kmeans(data, E, k)
+% this is based on the work by  Wagstaff & Cardie (2000) and 
+% Wagstaff et al. (2001). n  these  papers, both must-link and cannot-link 
+% constraints were considered in a modified K-means algorithm. A 
+% limitation of their work is that the side information must be treated as 
+% the ground-truth and is incorporated into the models as hard constraints
+function[centroid, pointsInCluster, assignment, clustersSize] = constrained_kmeans(data, E, k)
 
-[num dim] = size(data);
+
+[num, dim] = size(data);
 
 pointsInCluster = []; 
 
@@ -22,7 +28,7 @@ pos_diff = 1.;
 % main loop until
 iterAll = 0;
 while pos_diff > 0.0
-    iterAll = iterAll + 1
+    iterAll = iterAll + 1; 
     if iterAll >= 20000
         disp('terminated by reaching the maximum number of iterations ')
         break;
@@ -70,9 +76,7 @@ while pos_diff > 0.0
         end
         assignment = [ assignment; curAssignment];
     end
-    
-    assignment
-    
+   
     % for the stoppingCriterion
     oldPositions = centroid;
     

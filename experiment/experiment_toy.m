@@ -1,6 +1,4 @@
 % this script runs clustering on toy examples 
-% to simulate the toy experiments run ``
-
 clear all; close all; clc;
 pathAll(''); 
 

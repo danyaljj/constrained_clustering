@@ -27,7 +27,7 @@ if ~exist([name1 '.mat'])
     titles = {};
     calculationTime = {};
         
-    % make E matrix
+    % make E matrix: the matrix containing pairwise constraints 
     % since different codes have different input standards, here I am
     % creating multiple encodings of the constraint matrix. 
     E = zeros(size(Y, 1), size(Y, 1));
@@ -166,7 +166,7 @@ if 1
         tic;
         disp('DP-means ....');
         disp(['experiment name  = ' experimentName])
-        [centroid, pointsInCluster, assignment, clusterSize]= dpmeans(X, lambda);
+        [~, ~, assignment, clusterSize]= dpmeans(X, lambda);
         ind = length(dataAll);
         calculationTime{ind+1} = toc;
         dataAll{ind+1} = X;
@@ -177,24 +177,23 @@ if 1
 end
 
 %% constrained k-means
-% [centroid, pointsInCluster, assignment]= constrained_kmeans(X, E, k);
-% ind = length(dataAll);
-% dataAll{ind+1} = X;
-% if length(assignment) < size(X,1)
-%     maxComp = max(assignment);
-%     diffSize = size(X,1) - length(assignment);
-%     assignment = [assignment; randint(diffSize, 1, maxComp) + 1];
-% end
-% assignmentAll{ind+1} = assignment;
-% titles{ind+1} = 'Constrained K-means';
-
-% dataAll
-% assignmentAll
-% titles
-% plotExperiments(dataAll, assignmentAll, titles, 2, 3)
-% return;
+if 0 % this not active since this algorithm is does not always return 
+     % responses, especially when data is noisy. 
+    [centroid, pointsInCluster, assignment] = constrained_kmeans(X, E, k);
+    ind = length(dataAll);
+    dataAll{ind+1} = X;
+    if length(assignment) < size(X,1)
+        maxComp = max(assignment);
+        diffSize = size(X,1) - length(assignment);
+        assignment = [assignment; randint(diffSize, 1, maxComp) + 1];
+    end
+    assignmentAll{ind+1} = assignment;
+    titles{ind+1} = 'Constrained K-means';
+end 
 
 %% MPCKMeans
+% Based on a java code by Bilenko et al. (2004). The following function 
+% call is to a matlab wrapper of java function. 
 if 1
     name = 'MPCKMeans';
     if ~containsMethod(name, titles)
@@ -208,27 +207,27 @@ if 1
     end
 end
 
-
+%% Co1SC, 2012: constrained 1-spectral clustering 
 if 1
     name = 'Co1SC-NC';
     if ~containsMethod(name, titles)
-        %% Co1SC, 2012: constrained 1-spectral
         disp('Co1SC, 2012: constrained 1-spectral ...');
-        %   W:      n x n similarity matrix, where n is the number of data points.
+        % W:      n x n similarity matrix, where n is the number of data points.
         %           It has to be a sparse symmetric matrix, with zeros on the diagonal.
-        %   deg:    n x 1 degree vector (can also be seen as vertex weights)
+        % deg:    n x 1 degree vector (can also be seen as vertex weights)
         %           for Normalized cut it is sum(W,2)
         %           for Ratio cut, it is ones(size(W,1),1)
-        %   k:      number of clusters
-        %   ML:     m x 2 martix, specifying m must-link pairs
-        %   CL:     p x 2 matrix, specifying p cannot-link pairs
+        % k:      number of clusters
+        % ML:     m x 2 martix, specifying m must-link pairs
+        % CL:     p x 2 matrix, specifying p cannot-link pairs
         tic;
         try
             W_nonsparse = squareform(pdist(X));
             W = sparse(W_nonsparse);
             vertex_weights = sum(W,2); % this choice corresponds to normalized cut
-            [cut, assignment, viols] = cosc(W, vertex_weights, k, ML, CL);
-            %[cut, clusters, viols] = cosc(W, vertex_weights, k, ML, CL, 2, 2, 0, false, 1000);
+            [~, assignment, viols] = cosc(W, vertex_weights, k, ML, CL);
+            % Faster, but approximate form: 
+            % [cut, clusters, viols] = cosc(W, vertex_weights, k, ML, CL, 2, 2, 0, false, 1000);
         catch
             assignment = [];
             disp('Error handled')
@@ -241,14 +240,16 @@ if 1
     end
 end
 
+% 1-clustering, with different definition of Laplacian. 
 if 1
     name = 'Co1SC-RC';
     if ~containsMethod(name, titles)
         tic;
         try
             vertex_weights = ones(size(W,1),1); % this choice corresponds to ratio cut
-            [cut, assignment, viols] = cosc(W, vertex_weights, k, ML, CL);
-            %[cut, clusters, viols] = cosc(W, vertex_weights, k, ML, CL, 2, 2, 0, false, 1000);
+            [~, assignment, viols] = cosc(W, vertex_weights, k, ML, CL);
+            % Faster, but approximate form: 
+            % [cut, clusters, viols] = cosc(W, vertex_weights, k, ML, CL, 2, 2, 0, false, 1000);
         catch
             assignment = [];
             disp('Error handled')
@@ -261,44 +262,23 @@ if 1
     end
 end
 
-if 0
+%% CECM
+if 1
     name = 'CECM';
     if ~containsMethod(name, titles)
-        %%
-        % CECM
         tic;
         option = struct('init',1,'alpha',1,'rho2',1000,'bal',0,'distance',1);
-        %nbConst=10;
         noise=0;
-        %matConst=eye(n);
-        %matConst=addNewConstraints(x,y,matConst,nbConst,noise,0);
-        [m,g,BetP,J]=CECM(X,k,matConst,option);
-        [C,Idx] = max(BetP,[],2);
+        [~,~,BetP,J]=CECM(X,k,matConst,option);
+        [~,Idx] = max(BetP,[],2);
         calculationTime{ind+1} = toc;
         dataAll{ind+1} = X;
         assignmentAll{ind+1} = Idx;
         titles{ind+1} = name;
     end
 end
-% if 0
-%     %%
-%     % save('tmp')
-%     option = struct('init',1,'alpha',1,'rho2',1000,'bal',0,'distance',1);
-%     Xi=1;
-%     % compute distances between objects
-%     D=X*X';
-%     N=diag(diag(D))*ones(size(D));
-%     DistObj=sqrt(N+N'-2*D);
-%     % Generate constraints
-%     %E2=addConstraints(y,nbConst);
-%     [m,BetP,J,ab]=CEVCLUS(DistObj,k,E2,Xi);
-%     [C,Idx] = max(BetP,[],2);
-%     dataAll{ind+1} = X;
-%     assignmentAll{ind+1} = Idx;
-%     titles{ind+1} = 'CEVCLUS';
-% end
 
-%% TVClust variational :
+%% TVClust variational:
 if 1
     name = 'TVClust(variational)';
     if ~containsMethod(name, titles)
@@ -309,8 +289,6 @@ if 1
         tic;
         cd '../algorithms/tvclust/'
         [assignment] = TVClust_variational(Checked, SM, X);
-        % fileID = fopen('..\tvclust\result2.txt','r');
-        % assignment = fscanf(fileID,'%d');
         cd '../../experiment/'
         ind = length(dataAll);
         calculationTime{ind+1} = toc;
@@ -320,24 +298,7 @@ if 1
     end
 end
 
-% if 0
-%     SM = -1 * ones(size(E));
-%     SM(E == 1) = 1;
-%     %SM(E == -1) = [];
-%
-%     cd '..\tvclust\'
-%     [assignment] = TVClust_variational(Checked, SM, X);
-%     % fileID = fopen('..\tvclust\result2.txt','r');
-%     % assignment = fscanf(fileID,'%d');
-%     cd '..\toy_experiment\'
-%     ind = length(dataAll);
-%     dataAll{ind+1} = X;
-%     assignmentAll{ind+1} = assignment;
-%     titles{ind+1} = 'DP+MRF';
-% end
-
-
-%% save everything
+%% save everything and possibly plot 
 try 
     result = calculateResults(dataAll, assignmentAll, titles, Y);
 catch 
@@ -345,8 +306,8 @@ end
 
 if verboseOutput 
     save(name1);
-    title = ['Experiment= ' experimentName ' | sample size= ' num2str(size(X,1)) ' | sampling rate= ' num2str(rate) ' | constraint confidence= ' num2str(p) ];
-    h = plotExperiments(dataAll, assignmentAll, titles, 4, 5, title);
+    %title = ['Experiment= ' experimentName ' | sample size= ' num2str(size(X,1)) ' | sampling rate= ' num2str(rate) ' | constraint confidence= ' num2str(p) ];
+    h = plotExperiments(dataAll, assignmentAll, titles, 4, 3);
     saveas(h, name1, 'fig')
     saveas(h, name1, 'tiff')
     saveas(h, name1, 'png')
