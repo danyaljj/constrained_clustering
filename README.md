@@ -19,6 +19,7 @@ Here is how the code structured:
 Note that not all of these algorithms are used in the evaluation script (either due to instability, being slow, or not being compatible with our purposes). That said, you can always add these to the script and use them. 
 - `data`: UCI data + toy data
 - `distance`: some of the distance measures we have used across multiple algorithms. 
+- `experiment`: scripts for running the algorithms on datasets. 
 - `metrics`: contains the evaluation metrics we have used.    
 
 ## Questions / Comments / Suggestions  

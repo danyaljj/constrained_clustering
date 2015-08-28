@@ -1,42 +1,10 @@
 function[centroid, pointsInCluster, assignment, clustersSize]= dpmeans(data, lambda, distancef)
-% function bpmeans()
 
 if(nargin < 3)
     distancef ='Gaussian';
 end
 
-% data
-% lambda = 20;
-% load tmp
-
-
-% size(data,1) : number of the instances
-% size(data,2) : dimensionality of the data
-
-% data = X
-% nbCluster = 5;
-% load tmp
-
 nbCluster = 1; % size(data,1)/10;
-% nbClusterNow = 1;  % current number of clusters
-
-% usage
-% function[centroid, pointsInCluster, assignment]=
-% myKmeans(data, nbCluster)
-%
-% Output:
-% centroid: matrix in each row are the Coordinates of a centroid
-% pointsInCluster: row vector with the nbDatapoints belonging to
-% the centroid
-% assignment: row Vector with clusterAssignment of the dataRows
-%
-% Input:
-% data in rows
-% nbCluster : nb of centroids to determine
-%
-% (c) by Christian Herta ( www.christianherta.de )
-%
-%
 data_dim = length(data(1,:));
 nbData  = length(data(:,1));
 
@@ -50,7 +18,6 @@ for i=1 : 1 : length(centroid(:,1))
     centroid( i , : ) =   centroid( i , : )  .* data_diff;
     centroid( i , : ) =   centroid( i , : )  + data_min;
 end
-% end init centroids
 
 % no stopping at start
 pos_diff = 1.;
@@ -63,8 +30,6 @@ while pos_diff > 0.0
         disp('terminated by reaching the maximum number of iterations ')
         break;
     end
-    %     nbClusterNow
-%     nbCluster
     % E-Step
     assignment = []; % per data
     % assign each datapoint to the closest centroid
@@ -73,8 +38,6 @@ while pos_diff > 0.0
         curAssignment = 0;
         
         for c = 1 : nbCluster;
-            %             c
-            
             diff2c = 0;
             if(strcmp(distancef,'Gaussian'))
                 diff2c = gaussianDifference(data(d,:), centroid(c,:));
@@ -82,17 +45,11 @@ while pos_diff > 0.0
                 diff2c = multDifference(data(d,:), centroid(c,:));
             end
             
-            %diff2c = ( data( d, :) - centroid( c,:) );
-            %diff2c = sqrt( diff2c * diff2c' );
-            
-            
             if( min_diff >= diff2c)
                 curAssignment = c;
                 min_diff = diff2c;
             end
         end
-        
-        %min_diff, lambda
         
         if( min_diff < lambda )
             % keep it ;
@@ -102,21 +59,11 @@ while pos_diff > 0.0
             curAssignment = nbCluster;
             centroid(end+1, :) = data( d, :); % (rand( 1, data_dim) .* data_diff) + data_min;
             
-%             figure; hold on; 
-%             for c = 1 : nbCluster-1;
-%                 plot(centroid( c, 1), centroid( c, 2), 'xb'); 
-%                 disp('plot another')
-%             end
-%             plot(centroid( c, 1), centroid( c, 2), 'xr'); 
-%             pause; 
         end
         
         % assign the d-th dataPoint
         assignment = [ assignment; curAssignment];
     end
-    
-%     plotTheClusters(data, nbCluster,  centroid); 
-%      pause; 
     
     
     % for the stoppingCriterion
@@ -146,7 +93,6 @@ while pos_diff > 0.0
             end 
         else
             % set cluster randomly to new position
-            %             centroid( c , : ) = (rand( 1, data_dim) .* data_diff) + data_min;
             centroid( c - add , : ) = [];
             nbCluster = nbCluster - 1; 
             disp('Cluster removed!!!!!!!!!!!!!!!')
@@ -156,19 +102,13 @@ while pos_diff > 0.0
         end
     end
     
-%      plotTheClusters(data, nbCluster,  pointsInCluster); 
-%      pause; 
-    
-    %stoppingCriterion
     if size(centroid,1 ) ~= size(oldPositions,1) || size(centroid,2) ~= size(oldPositions,2)
         pos_diff = 1; 
     else 
         pos_diff = sum (sum( (centroid - oldPositions).^2 ) );
     end 
-    %     pos_diff
     clustersSize = nbCluster;
     if(pos_diff <= 0)
         disp('terminated by reaching at the while threshold ')
-    end 
-    
+    end     
 end
