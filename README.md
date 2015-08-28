@@ -7,6 +7,10 @@ Part of this code is used to simulate experiments in [this](http://arxiv.org/abs
 Also there is a list of constrained clustering algorithms with available codes [here](http://web.engr.illinois.edu/~khashab2/files/2015_constrained_clustering/constrainedClustering.html). 
 
 ## How to run: 
+To see output on toy data, go to the directory `experiment`, and run the script `experiment_toy.m`. You should be able to see the following output, followed by some other outputs: 
+![alt text](https://github.com/danyaljj/constrained_clustering/experiment/Gaussian-Mixtures_iter=1.tif)
+
+You can run the script `experiment_uci.m` to see the output of the algorithms on the UCI dataset as well.  
 
 ## Structure of this package
 Here is how the code structured: 
