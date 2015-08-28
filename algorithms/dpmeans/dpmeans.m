@@ -1,4 +1,4 @@
-function[centroid, pointsInCluster, assignment, clustersSize]= bpmeans(data, lambda, distancef)
+function[centroid, pointsInCluster, assignment, clustersSize]= dpmeans(data, lambda, distancef)
 % function bpmeans()
 
 if(nargin < 3)

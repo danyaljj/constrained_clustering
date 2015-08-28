@@ -1,23 +1,35 @@
 function [] = runClustering(X, Y, k, experimentName, rate, p, verboseOutput)
-% X 
-% Y 
-% k 
-% experimentName 
-% rate
-% p 
-% verboseOutput 
+% X: The input data 
+% Y: The output labels 
+% k: the desired number of clusters 
+% experimentName: the name of the experiement; for logging results. 
+% rate: the size of the pairwise constraints over the total possible 
+%       number of constraints. 
+% p: a value in [0, 1]. Thi is the confidence on quality of the constraints. 
+% When p = 1, the constraints are high quality (noise-free). As `p` gets 
+% closer to zero, it is more likely that the constraints will be fliped 
+% (hence noisier). 
+% verboseOutput: a boolean input. If this is true, the code will visuzlize 
+% the output and will save it and the results on disk. Note that the 
+% visualization makes sense only if the data is 2D 
 
 iter = 1;
 name1 = [experimentName '_iter=' num2str(iter)];
 name1 = strrep(name1, '.', '_');
+
+% checking if there is a result on disk with the same experiment name. 
+% if there is one, we open it, and add our results into it, and save it
+% back. 
 if ~exist([name1 '.mat'])
-    disp(['skipping = '  experimentName])
+    disp(['skipping the experiment '  experimentName])
     dataAll = {};
     assignmentAll = {};
     titles = {};
     calculationTime = {};
         
     % make E matrix
+    % since different codes have different input standards, here I am
+    % creating multiple encodings of the constraint matrix. 
     E = zeros(size(Y, 1), size(Y, 1));
     Checked = zeros(size(Y, 1), size(Y, 1));
     randSize = rate * size(Y, 1) * size(Y, 1);
@@ -81,7 +93,7 @@ if ~exist([name1 '.mat'])
     E2 = C_m;
     E2(:,3) = (E2(:,3) + 1)/2;    
 else
-    disp('loading the file .... ')
+    disp('loading the file . . . ')
     load([name1 '.mat'])
 end
 
@@ -94,34 +106,27 @@ if ~containsMethod(name, titles)
     titles{ind+1} = name;
 end
 
-%% cluster : k-means
+%% k-means
 name = 'K-means';
 if ~containsMethod(name, titles)
     disp('K-means ....');
     tic;
-    [centroid, pointsInCluster, assignment]= kmeans2(X, k);
+    [~, ~, assignment]= kmeans2(X, k);
     calculationTime{ind+1} = toc;
     ind = length(dataAll);
     dataAll{ind+1} = X;
     assignmentAll{ind+1} = assignment;
     titles{ind+1} = name;
-    disp('kmeans done!!')
+    disp('kmeans is done!!')
 end
 
-%% dp-means
-% disp('RDP-means ....');
-% [centroid, pointsInCluster, assignment, clustersSize, objs, pointsAll, centroindsAll] = constrained_v2(X, lambda, E, 2, .001, 'Gaussian');
-% ind = length(dataAll);
-% dataAll{ind+1} = X;
-% assignmentAll{ind+1} = assignment;
-% titles{ind+1} = 'RDP-means (with initial assignment to one cluster)';
-
-if 1
+%% rdp-means
+if 1 % easy way to activate/diactivate this part of code 
     name = 'RDP-means';
     if ~containsMethod(name, titles)
         tic;
         try
-            [centroid, pointsInCluster, assignment_out, clustersSize, objs, pointsAll, centroindsAll] = constrained_dpmeans_slow_old(X, lambda, E, 2, .001);
+            [~, ~, assignment_out, ~, ~, ~, centroindsAll] = rdpmeans(X, lambda, E, 2, .001);
         catch
             assignment_out = [];
             disp('Error handled')
@@ -141,7 +146,7 @@ if 1
     if ~containsMethod(name, titles)
         tic;
         try
-            [idx centroids iter LCVQE time] = lcvqe(X, k, C_m);
+            [idx, ~, ~, ~, ~] = lcvqe(X, k, C_m);
         catch 
             idx = [];
             disp('Error handled')
@@ -151,12 +156,10 @@ if 1
         calculationTime{ind+1} = toc;
         assignmentAll{ind+1} = idx;
         titles{ind+1} = name;
-        %save('output_lcvqe')
-        %pause;
     end
 end
 
-%% cluster: dp-means:
+%% dp-means:
 if 1
     name = 'DP-means';
     if ~containsMethod(name, titles)

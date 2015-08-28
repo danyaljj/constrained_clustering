@@ -1,7 +1,6 @@
-function [h] = plotExperiments(dataAll, assignmentsAll, titles, height, width, t)
+function [h] = plotExperiments(dataAll, assignmentsAll, titles, height, width)
 h = figure;
 hold on;
-% title(t)
 colormap([1 0 .5;   % magenta
            0 0 .8;   % blue
            0 .6 0;   % dark green
@@ -16,6 +15,5 @@ for i=1:DataSize
     t = titles{i};
     title(t);
 end 
-hold off; 
-
+hold off;
 end

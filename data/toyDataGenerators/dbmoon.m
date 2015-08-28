@@ -49,4 +49,4 @@ data=[tmp1(1:N,:) zeros(N,1);
 % title(['Fig. 1.8 Double moon data set, d = ' num2str(d)]),
 % axis([-r-w2 2*r+w2 -r-w2-d r+w2])
 
-save dbmoon N r w d data;
+%save dbmoon N r w d data;

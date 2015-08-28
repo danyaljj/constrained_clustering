@@ -1,5 +1,5 @@
 function[centroid, pointsInCluster, assignment, clustersSize, ... 
-    objs, pointsAll, centroindsAll]= constrained_dpmeans_slow_old(data, lambda, E, rate, xi0, distancef)
+    objs, pointsAll, centroindsAll]= rdpmeans(data, lambda, E, rate, xi0, distancef)
 
 %         pointsAll {end+1} = assignment; 
 %         centroindsAll{end+1} = entroid;  
