@@ -18,7 +18,7 @@ order = randperm(size1);
 X = X(order,:);
 Y = Y(order,:);
 k = 2;    
-runClustering(X,Y,k, 'Gaussian-Mixtures', rate, p);
+runClustering(X,Y,k, 'Gaussian-Mixtures', rate, p, true);
 
 %% two spirals data 
 data = twospirals();
@@ -29,7 +29,7 @@ order = randperm(size1);
 X = X(order,:);
 Y = Y(order,:);
 k = 2;
-runClustering(X,Y,k, 'Two-Spirals', rate, p);
+runClustering(X,Y,k, 'Two-Spirals', rate, p, true);
 
 %% Cluster In Cluster dataset 
 data = clusterincluster();
@@ -40,7 +40,7 @@ order = randperm(size1);
 X = X(order,:);
 Y = Y(order,:);
 k = 2;
-runClustering(X,Y,k, 'Cluster-In-Cluster', rate, p);
+runClustering(X,Y,k, 'Cluster-In-Cluster', rate, p, true);
 
 %% Corners dataset 
 k = 4;
@@ -52,7 +52,7 @@ size1 = size(X,1);
 order = randperm(size1);
 X = X(order,:);
 Y = Y(order,:);
-runClustering(X,Y,k, 'Corners', rate, p);
+runClustering(X,Y,k, 'Corners', rate, p, true);
 
 %% Half-kernels dataset 
 data = halfkernel();
@@ -63,7 +63,7 @@ order = randperm(size1);
 X = X(order,:);
 Y = Y(order,:);
 k = 2;
-runClustering(X,Y,k, 'Half-Kernel', rate, p);
+runClustering(X,Y,k, 'Half-Kernel', rate, p, true);
 
 %% Full-moon dataset 
 data = crescentfullmoon();
@@ -74,7 +74,7 @@ order = randperm(size1);
 X = X(order,:);
 Y = Y(order,:);
 k = 2;
-runClustering(X,Y,k, 'crescentfullmoon', rate, p);
+runClustering(X,Y,k, 'crescentfullmoon', rate, p, true);
 
 %% Outlier 
 k = 4;
@@ -85,5 +85,5 @@ size1 = size(X,1);
 order = randperm(size1);
 X = X(order,:);
 Y = Y(order,:);
-runClustering(X,Y,k, 'outlier', rate, p);
+runClustering(X,Y,k, 'outlier', rate, p, true);
 

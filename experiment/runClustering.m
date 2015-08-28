@@ -1,10 +1,11 @@
-function [] = runClustering(X, Y, k, experimentName, rate, p)
+function [] = runClustering(X, Y, k, experimentName, rate, p, verboseOutput)
 % X 
 % Y 
 % k 
 % experimentName 
 % rate
 % p 
+% verboseOutput 
 
 iter = 1;
 name1 = [experimentName '_iter=' num2str(iter)];
@@ -303,11 +304,11 @@ if 1
         SM(E == -1) = 0;
         
         tic;
-        cd '../tvclust/'
+        cd '../algorithms/tvclust/'
         [assignment] = TVClust_variational(Checked, SM, X);
         % fileID = fopen('..\tvclust\result2.txt','r');
         % assignment = fscanf(fileID,'%d');
-        cd '../toy_experiment/'
+        cd '../../experiment/'
         ind = length(dataAll);
         calculationTime{ind+1} = toc;
         dataAll{ind+1} = X;
@@ -339,13 +340,12 @@ try
 catch 
 end
 
-save(name1);
-
-% title = ['Experiment= ' experimentName ' | sample size= ' num2str(size(X,1)) ' | sampling rate= ' num2str(rate) ' | constraint confidence= ' num2str(p) ];
-% h = plotExperiments(dataAll, assignmentAll, titles, 4, 5, title);
-%
-% saveas(h, name1, 'fig')
-% saveas(h, name1, 'tiff')
-% saveas(h, name1, 'png')
-% saveas(h, name1, 'pdf')
-
+if verboseOutput 
+    save(name1);
+    title = ['Experiment= ' experimentName ' | sample size= ' num2str(size(X,1)) ' | sampling rate= ' num2str(rate) ' | constraint confidence= ' num2str(p) ];
+    h = plotExperiments(dataAll, assignmentAll, titles, 4, 5, title);
+    saveas(h, name1, 'fig')
+    saveas(h, name1, 'tiff')
+    saveas(h, name1, 'png')
+    saveas(h, name1, 'pdf')
+end 

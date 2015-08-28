@@ -1,6 +1,6 @@
 function [assignment, centroids_vectors] = runMPCKMeans(X, Y, k, C_m) 
 
-javaaddpath('/shared/shelley/khashab2/constrained_clustering/newCode/Constrained_codes/otherCodes/ToBeRemoved/MPCKMeans/weka-latest.jar');
+javaaddpath('../algorithms/MPCKmeans_matlabWrapper/MPCKMeans/weka-latest.jar');
 
 % import weka.clusterers.MPCKMeans
 % import weka.clusterers.InstancePair
