@@ -1,8 +1,6 @@
 % this script runs clustering on UCI datasets
 clear all; close all; clc;
 pathAll('');
-k_variance = 0;
-for iii = 1:1;
 % This is the rate in which we sample side information;
 % more accurate, this is the size of the pairwise constraints
 % over the total number of constraints.
@@ -69,4 +67,3 @@ Y = Y(order,:);
 k = 3;
 experimentName = ['Variable_k_balance_p=' num2str(p) '_rate=' num2str(rate) '_i=' num2str(iii) '_kvariance_' num2str(k_variance)];
 runClustering(X,Y,k, experimentName, rate, p, false);
-end
