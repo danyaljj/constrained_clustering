@@ -1,10 +1,8 @@
 function [assignment, centroids_vectors] = runMPCKMeans(X, Y, k, C_m) 
 
-	javaaddpath('../algorithms/MPCKmeans_matlabWrapper/MPCKMeans/weka-latest.jar');
+	javaaddpath('../algorithms/MPCKMeans/weka-latest.jar');
 
 	import weka.*
-	import weka.core.FastVector
-	import weka.core.*
 	import weka.clusterers.*
 	import weka.core.*
 	import java.util.ArrayList
