@@ -1,11 +1,13 @@
-function ret = containsMethod(e, container)
-ret = 0;
-if size(container, 1) > 0
-    assert(size(container, 1) == 1);
-    for i=1:size(container, 2)
-        ret = strcmp(container{i}, e);
-        if ret == 1
-            break
-        end
+function out = containsMethod(name, titles)
+name 
+titles 
+ 
+DataSize = length(titles); 
+for i=1:DataSize
+    if strcmp( titles{i}, name )
+        out = true; 
+        return; 
     end
+end 
+out = false; 
 end
