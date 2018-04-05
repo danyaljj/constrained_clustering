@@ -37,8 +37,6 @@ function data = clusterincluster(N, r1, r2, w1, w2, arms)
     phi2 = phi2';
     dist2 = r2 * (1 - w2/2) + r2 * w2 * mod(1:N2, perarm)'/perarm;
     d2 = [dist2 .* cos(phi2) dist2 .* sin(phi2) ones(N2,1)];    
-    size(d1)
-    size(d2)
     data = [d1;d2];   
 
     %scatter(data(:,1), data(:,2), 20, data(:,3)); axis square;
