@@ -13,7 +13,14 @@ rate = 0.03;
 % likely that the constraints will be fliped (hence noisier).
 p = 1;
 
-%% iris
+
+% rand of values for k 
+k_variance=1
+
+% number of trials
+iii=3
+
+%% iris 
 [X,Y] = readUCIData('iris');
 size1 = size(X,1);
 order = randperm(size1);
